@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>httpSMS Pulse • Smart Android SMS Gateway & Dashboard</title>
+  <meta name="description" content="Manage, send, and receive SMS messages using your Android phone gateway with real-time delivery tracking, chat threads, and live simulator.">
+  
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- App Wrapper -->
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">httpSMS</span>
+          <span class="brand-badge">PULSE</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button id="nav-btn-messages" class="nav-item active" data-tab="messages-tab">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <span>All Messages</span>
+          <span id="nav-count-messages" class="nav-counter">4</span>
+        </button>
+
+        <button id="nav-btn-threads" class="nav-item" data-tab="threads-tab">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+          </svg>
+          <span>Chat Threads</span>
+          <span id="nav-count-threads" class="nav-counter">2</span>
+        </button>
+
+        <button id="nav-btn-gateway" class="nav-item" data-tab="gateway-tab">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01" />
+          </svg>
+          <span>Android Gateway</span>
+          <span class="pulse-dot green"></span>
+        </button>
+
+        <button id="nav-btn-settings" class="nav-item" data-tab="settings-tab">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <span>API & Settings</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Gateway Status Widget -->
+      <div class="sidebar-device-widget">
+        <div class="widget-header">
+          <span class="widget-label">GATEWAY PHONE</span>
+          <span class="badge-status online" id="sidebar-device-status">ONLINE</span>
+        </div>
+        <div class="device-name" id="sidebar-device-name">Pixel 7 Pro</div>
+        <div class="device-details">
+          <span id="sidebar-device-battery">⚡ 92% Battery</span>
+          <span id="sidebar-device-sims">📶 SIM1 & SIM2</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      <!-- Top App Bar -->
+      <header class="app-header">
+        <div class="header-left">
+          <h1 class="header-page-title" id="page-title">SMS Dispatch & Activity</h1>
+          <div class="gateway-live-indicator">
+            <span class="pulse-indicator"></span>
+            <span id="header-status-text">Gateway Active (Port 3000)</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-quick-receive" class="btn btn-secondary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+            <span>Simulate Inbound SMS</span>
+          </button>
+
+          <button id="btn-quick-send" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            <span>Compose SMS</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Metric Stats Bar -->
+      <section class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon indigo">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Total Messages</span>
+            <span class="metric-value" id="stat-total-messages">4</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon purple">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Sent (Outbound)</span>
+            <span class="metric-value" id="stat-sent-messages">2</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon emerald">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Received (Inbound)</span>
+            <span class="metric-value" id="stat-received-messages">2</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon cyan">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Delivery Rate</span>
+            <span class="metric-value" id="stat-delivery-rate">100%</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Tabs Container -->
+      <main class="content-container">
+        <!-- TAB 1: ALL MESSAGES -->
+        <section id="messages-tab" class="tab-pane active">
+          <!-- Filter & Search Toolbar -->
+          <div class="toolbar-card">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35" />
+              </svg>
+              <input type="text" id="input-search-messages" placeholder="Search by contact, phone (+1...), or message content...">
+            </div>
+
+            <div class="filter-pills">
+              <button class="filter-pill active" data-filter="all">All</button>
+              <button class="filter-pill" data-filter="received">Received (MO)</button>
+              <button class="filter-pill" data-filter="sent">Sent (MT)</button>
+              <button class="filter-pill" data-filter="delivered">Delivered</button>
+              <button class="filter-pill" data-filter="pending">Pending</button>
+            </div>
+
+            <div class="toolbar-tools">
+              <button id="btn-refresh-messages" class="btn-icon" title="Refresh messages">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+              <button id="btn-export-messages" class="btn-icon" title="Export to JSON">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Messages Table / Feed -->
+          <div class="card table-card">
+            <div class="table-responsive">
+              <table class="messages-table" id="messages-table">
+                <thead>
+                  <tr>
+                    <th>DIRECTION</th>
+                    <th>CONTACT / PHONE</th>
+                    <th>MESSAGE CONTENT</th>
+                    <th>SIM</th>
+                    <th>STATUS</th>
+                    <th>TIMESTAMP</th>
+                    <th>ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody id="messages-tbody">
+                  <!-- Injected via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="messages-empty-state" class="empty-state hidden">
+              <div class="empty-icon">📭</div>
+              <h3>No SMS Messages Found</h3>
+              <p>There are no messages matching your search or filters.</p>
+              <button id="btn-empty-compose" class="btn btn-primary">Compose First SMS</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: CHAT CONVERSATION THREADS -->
+        <section id="threads-tab" class="tab-pane">
+          <div class="threads-layout">
+            <!-- Contact Thread List -->
+            <div class="threads-sidebar card">
+              <div class="thread-search">
+                <input type="text" id="input-search-threads" placeholder="Search conversations...">
+              </div>
+              <div class="thread-list" id="thread-list">
+                <!-- Thread list items injected via JS -->
+              </div>
+            </div>
+
+            <!-- Active Thread Conversation View -->
+            <div class="thread-chat card" id="thread-chat-view">
+              <div class="chat-header" id="chat-header">
+                <div class="chat-recipient">
+                  <div class="chat-avatar" id="chat-avatar">👩‍💼</div>
+                  <div class="chat-info">
+                    <h3 id="chat-contact-name">Sarah Connor</h3>
+                    <span id="chat-contact-phone">+18005550100</span>
+                  </div>
+                </div>
+                <div class="chat-meta">
+                  <span class="badge-sim" id="chat-active-sim">SIM 1</span>
+                </div>
+              </div>
+
+              <!-- Chat Message Bubble Feed -->
+              <div class="chat-messages" id="chat-messages-container">
+                <!-- Chat bubbles injected via JS -->
+              </div>
+
+              <!-- Quick Reply Box -->
+              <form class="chat-reply-form" id="chat-reply-form">
+                <textarea id="chat-reply-input" placeholder="Type a message to reply..." rows="2" required></textarea>
+                <div class="chat-reply-actions">
+                  <div class="char-count" id="chat-char-count">0 / 160 chars</div>
+                  <button type="submit" id="btn-reply-send" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                    <span>Send</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: ANDROID GATEWAY & SIM MONITOR -->
+        <section id="gateway-tab" class="tab-pane">
+          <div class="gateway-overview-grid">
+            <!-- Device Card -->
+            <div class="card device-card">
+              <div class="card-header">
+                <h3>Android Gateway Device</h3>
+                <span class="badge-status online">Connected</span>
+              </div>
+              <div class="device-body">
+                <div class="device-render">
+                  <div class="device-mockup">
+                    <div class="notch"></div>
+                    <div class="screen-content">
+                      <div class="screen-header">
+                        <span>httpSMS Gateway</span>
+                        <span>100% 🔋</span>
+                      </div>
+                      <div class="screen-status-box">
+                        <div class="screen-dot green"></div>
+                        <span>Service Running</span>
+                      </div>
+                      <div class="screen-sims">
+                        <div>SIM 1: T-Mobile US</div>
+                        <div>SIM 2: AT&T Wireless</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="device-specs">
+                  <div class="spec-row">
+                    <span class="spec-name">Device Model:</span>
+                    <span class="spec-val" id="spec-device-model">Google Pixel 7 Pro</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-name">Gateway ID:</span>
+                    <span class="spec-val mono">gw-pixel7-prod-01</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-name">Battery Level:</span>
+                    <span class="spec-val">92% (Charging ⚡)</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-name">Network:</span>
+                    <span class="spec-val">Wi-Fi + 5G Ultra Wideband</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-name">FCM Connection:</span>
+                    <span class="spec-val green-text">Connected & Listening</span>
+                  </div>
+                  <div class="spec-row">
+                    <span class="spec-name">Heartbeat Latency:</span>
+                    <span class="spec-val">42 ms</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SIM Cards & Numbers -->
+            <div class="card sim-card-panel">
+              <div class="card-header">
+                <h3>Active SIM Cards & Phone Numbers</h3>
+              </div>
+              <div class="sim-list">
+                <div class="sim-item">
+                  <div class="sim-chip">SIM 1</div>
+                  <div class="sim-info">
+                    <h4>Primary Business Line</h4>
+                    <span class="sim-number mono">+18005550199</span>
+                    <span class="sim-carrier">Carrier: T-Mobile US • SMS / MMS Capable</span>
+                  </div>
+                  <span class="sim-status active">Active</span>
+                </div>
+
+                <div class="sim-item">
+                  <div class="sim-chip">SIM 2</div>
+                  <div class="sim-info">
+                    <h4>Secondary Support Line</h4>
+                    <span class="sim-number mono">+18005550198</span>
+                    <span class="sim-carrier">Carrier: AT&T Wireless • SMS Capable</span>
+                  </div>
+                  <span class="sim-status active">Active</span>
+                </div>
+              </div>
+
+              <div class="gateway-tips">
+                <div class="tip-title">💡 How this Gateway works:</div>
+                <p>When you click <strong>Send SMS</strong>, the server queues the message. In a live setup, a Firebase push triggers the Android phone to fetch the message and call Android's native <code>SmsManager.sendTextMessage()</code>. In this simulator mode, the full delivery lifecycle (Pending ➔ Sending ➔ Sent ➔ Delivered) is simulated with real timing!</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 4: API & SETTINGS -->
+        <section id="settings-tab" class="tab-pane">
+          <div class="settings-grid">
+            <div class="card">
+              <div class="card-header">
+                <h3>Gateway Mode & Connection</h3>
+              </div>
+              <form id="form-settings" class="settings-form">
+                <div class="form-group">
+                  <label for="setting-mode">Engine Mode</label>
+                  <select id="setting-mode" class="form-control">
+                    <option value="simulator">Local Embedded Simulator (Ready immediately)</option>
+                    <option value="live">Live httpSMS API / Self-Hosted Server</option>
+                  </select>
+                  <small class="form-hint">Simulator mode runs self-contained without needing physical phone setup or external keys.</small>
+                </div>
+
+                <div class="form-group" id="group-api-url">
+                  <label for="setting-api-url">httpSMS API Base URL</label>
+                  <input type="text" id="setting-api-url" class="form-control" value="https://api.httpsms.com">
+                  <small class="form-hint">Use <code>https://api.httpsms.com</code> or self-hosted <code>http://localhost:8000</code>.</small>
+                </div>
+
+                <div class="form-group" id="group-api-key">
+                  <label for="setting-api-key">API Key (x-api-key)</label>
+                  <input type="password" id="setting-api-key" class="form-control" placeholder="Enter your httpSMS API Key">
+                  <small class="form-hint">Required only for Live Mode to authenticate requests.</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="setting-default-sender">Default Sender Phone</label>
+                  <input type="text" id="setting-default-sender" class="form-control" value="+18005550199">
+                </div>
+
+                <div class="form-group">
+                  <label for="setting-webhook-url">Inbound Webhook URL</label>
+                  <input type="text" id="setting-webhook-url" class="form-control" placeholder="https://your-service.com/webhook/sms">
+                  <small class="form-hint">Forward received SMS messages to your external webhook endpoint.</small>
+                </div>
+
+                <div class="form-actions">
+                  <button type="submit" id="btn-save-settings" class="btn btn-primary">Save Configuration</button>
+                  <button type="button" id="btn-reset-data" class="btn btn-danger">Reset Sample Data</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- API Code Quick Reference -->
+            <div class="card">
+              <div class="card-header">
+                <h3>Programmatic Code Snippets</h3>
+              </div>
+              <div class="snippet-box">
+                <div class="snippet-label">cURL — Send SMS</div>
+                <pre class="code-block"><code>curl -X POST http://localhost:3000/v1/messages/send \
+  -H "Content-Type: application/json" \
+  -d '{
+    "from": "+18005550199",
+    "to": "+18005550100",
+    "content": "Hello Sarah, verification code: 8201",
+    "sim": "SIM1"
+  }'</code></pre>
+              </div>
+
+              <div class="snippet-box">
+                <div class="snippet-label">Node.js Client</div>
+                <pre class="code-block"><code>const { HttpSmsClient } = require('./sms_client');
+const client = new HttpSmsClient({ baseUrl: 'http://localhost:3000' });
+
+await client.sendSMS({
+  to: '+18005550100',
+  content: 'Hello from Node!'
+});</code></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL: Compose SMS -->
+  <div id="modal-compose" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-compose-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modal-compose-title" class="modal-title">Compose New SMS</h2>
+        <button id="btn-close-compose" class="btn-icon" aria-label="Close modal">&times;</button>
+      </div>
+
+      <form id="form-compose-sms" class="modal-form">
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="compose-sender">From (Sender SIM)</label>
+            <select id="compose-sender" class="form-control" required>
+              <option value="+18005550199" data-sim="SIM1">SIM 1: +18005550199 (Primary)</option>
+              <option value="+18005550198" data-sim="SIM2">SIM 2: +18005550198 (Support)</option>
+            </select>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="compose-sim">SIM Slot</label>
+            <select id="compose-sim" class="form-control">
+              <option value="SIM1">SIM 1</option>
+              <option value="SIM2">SIM 2</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="compose-recipient">To (Recipient Phone)</label>
+          <input type="text" id="compose-recipient" class="form-control" placeholder="+18005550100" required>
+          
+          <!-- Quick contact selector chips -->
+          <div class="quick-contacts">
+            <span class="quick-label">Quick Contacts:</span>
+            <button type="button" class="chip-contact" data-phone="+18005550100">Sarah C.</button>
+            <button type="button" class="chip-contact" data-phone="+18005550123">John D.</button>
+            <button type="button" class="chip-contact" data-phone="+18005550155">Alex R.</button>
+            <button type="button" class="chip-contact" data-phone="+18005550188">Dr. Reed</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="label-with-meta">
+            <label for="compose-content">Message Content</label>
+            <span class="sms-segment-info" id="compose-char-counter">0 / 160 characters (1 SMS segment)</span>
+          </div>
+          <textarea id="compose-content" class="form-control" rows="4" placeholder="Type your text message here..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="compose-attachment">MMS Media URL (Optional)</label>
+          <input type="url" id="compose-attachment" class="form-control" placeholder="https://example.com/image.jpg">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="btn-cancel-compose" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="btn-submit-send" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            <span>Send SMS</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Inbound SMS Simulator -->
+  <div id="modal-receive" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-receive-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modal-receive-title" class="modal-title">Simulate Inbound SMS</h2>
+        <button id="btn-close-receive" class="btn-icon" aria-label="Close modal">&times;</button>
+      </div>
+
+      <p class="modal-description">Simulate a customer sending an incoming SMS to your Android phone gateway. This triggers the inbound webhook and updates the inbox in real time.</p>
+
+      <form id="form-receive-sms" class="modal-form">
+        <div class="form-group">
+          <label for="receive-from">From (Sender Phone Number)</label>
+          <input type="text" id="receive-from" class="form-control" value="+18005550100" required>
+        </div>
+
+        <div class="form-group">
+          <label for="receive-to">To (Your Gateway SIM Number)</label>
+          <select id="receive-to" class="form-control" required>
+            <option value="+18005550199">SIM 1: +18005550199</option>
+            <option value="+18005550198">SIM 2: +18005550198</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="receive-content">Incoming Message Content</label>
+          <textarea id="receive-content" class="form-control" rows="3" placeholder="e.g. Yes, please confirm my booking!" required>Yes, please confirm my booking for 2:00 PM!</textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="btn-cancel-receive" class="btn btn-secondary">Cancel</button>
+          <button type="submit" id="btn-submit-receive" class="btn btn-emerald">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+            <span>Receive Message</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DRAWER: Message Details Inspector -->
+  <div id="drawer-details" class="drawer-overlay hidden">
+    <div class="drawer-box">
+      <div class="drawer-header">
+        <h3>Message Inspector</h3>
+        <button id="btn-close-drawer" class="btn-icon">&times;</button>
+      </div>
+
+      <div class="drawer-body" id="drawer-details-content">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "httpsms-dashboard-app",
+  "version": "1.0.0",
+  "description": "httpSMS Client and Interactive SMS Dashboard for sending and receiving SMS",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "client": "node sms_client.js"
+  },
+  "keywords": ["httpsms", "sms", "dashboard", "android-gateway", "telecom"],
+  "author": "Antigravity Pair Programmer",
+  "license": "MIT"
+}
